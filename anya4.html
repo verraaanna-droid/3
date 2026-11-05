@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Падающие звёзды кампуса — урок 4</title>
+<style>
+:root{--n1:#150c2b;--n2:#2e1650;--n3:#6a2b6e;--rose:#ff8fb1;--rose2:#e5648f;--gold:#f6d58e;--ice:#a9d8ff;--ivory:#fff3ee;--glass:rgba(255,255,255,.09);--line:rgba(255,214,200,.28);--ok:#8be3b0;--no:#ff8a8a}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ivory);font-family:"Georgia","Noto Serif","Times New Roman",serif;line-height:1.5;background:var(--n1) linear-gradient(180deg,#120a26 0%,#25123f 38%,#4b1f5e 72%,#8a3a6d 100%) fixed;min-height:100vh;overflow-x:hidden}
+.zh{font-family:"Noto Serif SC","Songti SC","STSong","SimSun","Source Han Serif SC",serif}
+.sans{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+canvas#sky{position:fixed;inset:0;z-index:0;pointer-events:none}
+.petals{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.petals i{position:absolute;top:-30px;width:12px;height:16px;border-radius:70% 0 70% 0;background:linear-gradient(135deg,#ffc2d6,#ff8fb1);opacity:.55;animation:fall linear infinite}
+@keyframes fall{to{transform:translate(60px,110vh) rotate(540deg)}}
+.wrap{position:relative;z-index:1;max-width:780px;margin:0 auto;padding:0 16px 80px}
+.hero{position:relative;margin:0 -16px;padding:70px 22px 54px;text-align:center;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(0,0,0,0) 40%)}
+.hero:before,.hero:after{content:"";position:absolute;left:0;right:0;height:22px;background:#000;opacity:.85}
+.hero:before{top:0}.hero:after{display:none}
+.ep{letter-spacing:.5em;font-size:13px;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.hero h1{margin:0;font-size:clamp(40px,11vw,76px);font-weight:600;line-height:1.08;letter-spacing:.06em;text-shadow:0 0 28px rgba(255,143,177,.6)}
+.hero .py{font-style:italic;color:var(--ice);margin-top:6px;letter-spacing:.08em}
+.hero .tag{margin:16px auto 0;max-width:520px;color:#f2d9de;font-size:16px}
+.shoot{position:absolute;width:140px;height:2px;background:linear-gradient(90deg,transparent,#fff);opacity:0;transform:rotate(-28deg);animation:sh 6s linear infinite}
+@keyframes sh{0%{opacity:0;transform:translate(120px,-60px) rotate(-28deg)}8%{opacity:.9}28%{opacity:0;transform:translate(-260px,150px) rotate(-28deg)}100%{opacity:0}}
+.sky-chips{position:sticky;top:0;z-index:10;display:flex;justify-content:center;gap:10px;padding:10px 6px;background:linear-gradient(180deg,rgba(21,12,43,.92),rgba(21,12,43,.0))}
+.sky-chips b{width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;color:#b9a6c9;font-size:13px;background:rgba(255,255,255,.04);transition:.4s}
+.sky-chips b.on{color:#2b1442;background:var(--gold);box-shadow:0 0 18px 4px rgba(246,213,142,.6);border-color:var(--gold)}
+.scene{position:relative;margin:26px 0;padding:22px 20px 24px;border-radius:22px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 18px 50px rgba(0,0,0,.35)}
+.scene .no{position:absolute;top:-16px;left:20px;background:linear-gradient(135deg,var(--rose),var(--rose2));color:#3a0f26;font:700 13px system-ui;padding:4px 14px;border-radius:999px;letter-spacing:.12em}
+.scene h2{margin:6px 0 2px;font-size:26px;font-weight:600}
+.scene .loc{color:var(--gold);font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+.task{margin:12px 0;color:#f6e3e6;font-size:16px}
+.fb{min-height:22px;margin-top:10px;font:600 15px system-ui}
+.fb.ok{color:var(--ok)}.fb.no{color:var(--no)}
+.btn{font:600 15px system-ui;border:1px solid var(--line);color:var(--ivory);background:rgba(255,255,255,.1);padding:10px 18px;border-radius:999px;cursor:pointer;margin:4px 6px 4px 0}
+.btn.main{background:linear-gradient(135deg,var(--rose),var(--rose2));border:0;color:#3a0f26}
+.btn:active{transform:scale(.97)}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--ivory);cursor:pointer;font-size:20px}
+.opt small{display:block;font:14px system-ui;color:#d7c2d4}
+.opt.good{background:rgba(139,227,176,.22);border-color:var(--ok)}.opt.bad{background:rgba(255,138,138,.18);border-color:var(--no)}
+.chip{display:inline-block;margin:4px;padding:8px 14px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid var(--line);cursor:pointer;font-size:20px;user-select:none}
+.chip.sel{outline:2px solid var(--gold);background:rgba(246,213,142,.2)}
+.chip.good{background:rgba(139,227,176,.25)}.chip.wrong{background:rgba(255,138,138,.22)}
+.pool{min-height:56px;border:1px dashed var(--line);border-radius:14px;padding:6px}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.bin{border:1px solid var(--line);border-radius:16px;padding:10px;min-height:120px;cursor:pointer;background:rgba(0,0,0,.18)}
+.bin h3{margin:0;font-size:34px;text-align:center;color:var(--gold)}
+.bin .hint{font:13px system-ui;text-align:center;color:#d7c2d4;margin-bottom:6px}
+.sent{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:10px 0;font-size:20px}
+.sent .tr{font:14px system-ui;color:#d7c2d4;flex-basis:100%}
+.sent .wb{padding:4px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.1);cursor:pointer;font-size:19px}
+.sent .wb.good{background:rgba(139,227,176,.25)}.sent .wb.bad{background:rgba(255,138,138,.25)}
+.ans{min-height:52px;border:1px dashed var(--gold);border-radius:14px;padding:6px;margin:6px 0 10px;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.tr2{font:14px system-ui;color:#d7c2d4}
+.map{width:100%;border-radius:18px;border:1px solid var(--line);background:#1d1236;display:block}
+.map .b{cursor:pointer;transition:.2s}.map .b:hover rect,.map .b:hover path{filter:brightness(1.25)}
+.map .b.good rect,.map .b.good path{stroke:var(--ok);stroke-width:4}.map .b.bad rect,.map .b.bad path{stroke:var(--no);stroke-width:4}
+.qbox{margin-top:10px;padding:10px 14px;border-radius:14px;background:rgba(0,0,0,.25);font-size:21px}
+.qbox .py{font:italic 15px Georgia;color:var(--ice)}
+.sub{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.45);text-align:center}
+.turn{display:flex;gap:12px;align-items:flex-start;padding:10px;border-radius:14px;margin:8px 0;background:rgba(255,255,255,.06)}
+.turn.mine{background:rgba(246,213,142,.12);border:1px solid rgba(246,213,142,.35)}
+.turn.hide .l{filter:blur(8px)}
+.av{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#7c4bb3,#c2547c);font-size:15px}
+.av.m{background:linear-gradient(135deg,var(--rose),#ffd0a8);color:#3a0f26}
+.turn .l{flex:1;min-width:0}
+.turn .l .t{font-size:20px}.turn .l .p{font:italic 14px Georgia;color:var(--ice)}.turn .l .r{font:14px system-ui;color:#d7c2d4}
+.sp,.tick{flex:none;border:1px solid var(--line);background:rgba(255,255,255,.1);color:var(--ivory);width:36px;height:36px;border-radius:50%;cursor:pointer}
+.tick.on{background:var(--gold);color:#3a2300}
+.final{text-align:center;display:none}.final.show{display:block}
+.vocab{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;text-align:left;margin-top:14px}
+.vocab div{padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid var(--line)}
+.vocab .zh{font-size:21px;display:block}.vocab .ru{font:14px system-ui;color:#d7c2d4}
+.consl{display:flex;justify-content:center;gap:6px;margin:10px 0;font-size:34px}
+.got{margin-top:10px;font:600 14px system-ui;color:var(--gold);display:none}.got.show{display:block}
+.cmpw{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+@media(prefers-reduced-motion:reduce){.petals i,.shoot{animation:none}}
+</style></head><body>
+<canvas id="sky"></canvas>
+<div class="petals" id="petals"></div>
+<div class="wrap">
+<header class="hero"><div class="shoot" style="top:60px;left:70%"></div><div class="shoot" style="top:120px;left:40%;animation-delay:2.4s"></div>
+<div class="ep">第四集 · Серия 4</div>
+<h1 class="zh">图书馆在哪儿？</h1>
+<div class="py">Túshūguǎn zài nǎr?</div>
+<p class="tag">Ночной кампус, огни в окнах, и одна студентка, которая ищет библиотеку. Шесть сцен, шесть звёзд. Собери их все, и небо над кампусом засветится.</p></header>
+<div class="sky-chips sans" id="chips"></div>
+
+<section class="scene" id="s1"><div class="no sans">第一场 · СЦЕНА 1</div>
+<div class="loc sans">校门 · xiàomén · Ворота кампуса</div><h2>Вечер, у ворот</h2>
+<div class="task sans">Девушка подходит к охраннику и вежливо спрашивает дорогу. Какую фразу ей сказать?</div>
+<div class="opts" id="o1"></div><div class="fb" id="fb1"></div><div class="got" id="g1"></div></section>
+
+<section class="scene" id="s2"><div class="no sans">第二场 · СЦЕНА 2</div>
+<div class="loc sans">宿舍楼 · sùshèlóu · Общежитие</div><h2>在 или 是?</h2>
+<div class="task sans">Нажми на карточку-реплику, потом на нужную корзинку. 在: предмет находится в месте. 是: в этом месте находится предмет.</div>
+<div class="pool" id="pool2"></div>
+<div class="bins"><div class="bin" data-bin="zai" id="b2z"><h3 class="zh">在</h3><div class="hint">предмет + 在 + место</div><div class="cont"></div></div>
+<div class="bin" data-bin="shi" id="b2s"><h3 class="zh">是</h3><div class="hint">место + 是 + предмет</div><div class="cont"></div></div></div>
+<div style="margin-top:12px"><button class="btn main" id="c2">Проверить</button><button class="btn" id="r2">Сначала</button></div>
+<div class="fb" id="fb2"></div><div class="got" id="g2"></div></section>
+
+<section class="scene" id="s3"><div class="no sans">第三场 · СЦЕНА 3</div>
+<div class="loc sans">教学楼 · jiàoxuélóu · Учебный корпус</div><h2>Здесь, там и где?</h2>
+<div class="task sans"><span class="zh">这儿</span> здесь, <span class="zh">那儿</span> там, <span class="zh">哪儿</span> где. Выбери слово для каждой реплики. С <span class="zh">哪儿</span> знак <span class="zh">吗</span> не нужен.</div>
+<div id="l3"></div><div style="margin-top:10px"><button class="btn main" id="c3">Проверить</button><button class="btn" id="r3">Сначала</button></div>
+<div class="fb" id="fb3"></div><div class="got" id="g3"></div></section>
+
+<section class="scene" id="s4"><div class="no sans">第四场 · СЦЕНА 4</div>
+<div class="loc sans">图书馆 · túshūguǎn · Библиотека</div><h2>Собери фразу</h2>
+<div class="task sans">Нажимай на плитки по порядку слева направо. Нажми на плитку в окошке, чтобы убрать её.</div>
+<div id="b4"></div><div class="fb" id="fb4"></div><div class="got" id="g4"></div></section>
+
+<section class="scene" id="s5"><div class="no sans">第五场 · СЦЕНА 5</div>
+<div class="loc sans">校园地图 · xiàoyuán dìtú · Карта кампуса</div><h2>东南西北</h2>
+<div class="task sans">Верх карты это север (北). Прочитай вопрос и нажми на нужное здание.</div>
+<svg class="map" id="map" viewBox="0 0 480 400" role="img" aria-label="Карта кампуса"></svg>
+<div class="qbox"><div class="zh" id="q5">…</div><div class="py" id="p5"></div><div class="tr2 sans" id="t5"></div></div>
+<div class="fb" id="fb5"></div><div class="got" id="g5"></div></section>
+
+<section class="scene" id="s6"><div class="no sans">第六场 · СЦЕНА 6</div>
+<div class="loc sans">邮局 · yóujú · Почта</div><h2>Диалог как в дораме</h2>
+<div class="task sans">Выбери роль и прочитай свои реплики вслух. Отмечай прочитанное. Потом поменяйтесь ролями. Кнопка 🔊 произносит реплику (если на устройстве есть китайский голос).</div>
+<div><button class="btn main" id="rm">Я Маша 玛莎</button><button class="btn" id="rs">Я студент 学生</button><button class="btn" id="hd">Скрыть мои реплики</button></div>
+<div id="dl6"></div><div class="fb" id="fb6"></div><div class="got" id="g6"></div></section>
+
+<section class="scene final" id="fin"><div class="no sans">终 · ФИНАЛ</div>
+<h2>Библиотека найдена! 图书馆在这儿！</h2>
+<div class="consl" id="consl"></div>
+<p class="sans" style="color:#f2d9de">Небо над кампусом светится. Теперь расскажи по-китайски: что находится к северу, югу, востоку и западу от твоего дома?</p>
+<div class="vocab" id="voc"></div></section>
+</div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const LS={g(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},s(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+function speak(t){try{const u=new SpeechSynthesisUtterance(t);u.lang='zh-CN';u.rate=.8;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function fb(id,ok,t){const e=$(id);e.className='fb '+(ok?'ok':'no');e.textContent=t}
+/* sky */
+(function(){const c=$('#sky'),x=c.getContext('2d');let W,H,st=[];function rs(){W=c.width=innerWidth;H=c.height=innerHeight;st=Array.from({length:Math.round(W*H/9000)},()=>({x:Math.random()*W,y:Math.random()*H*.8,r:Math.random()*1.4+.3,p:Math.random()*6}))}
+rs();addEventListener('resize',rs);const red=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function f(t){x.clearRect(0,0,W,H);st.forEach(s=>{x.globalAlpha=.4+.6*Math.abs(Math.sin(t/1200+s.p));x.fillStyle='#fff';x.beginPath();x.arc(s.x,s.y,s.r,0,7);x.fill()});if(!red)requestAnimationFrame(f)}
+requestAnimationFrame(f)})();
+$('#petals').innerHTML=Array.from({length:14},(_,i)=>`<i style="left:${Math.random()*100}%;animation-duration:${14+Math.random()*14}s;animation-delay:${-Math.random()*20}s;transform:scale(${.6+Math.random()*.8})"></i>`).join('');
+/* progress */
+const done=new Set(LS.g('a4_done',[]));
+$('#chips').innerHTML=[1,2,3,4,5,6].map(i=>`<b id="c${i}">★</b>`).join('');
+function refresh(){[...done].forEach(n=>$('#c'+n).classList.add('on'));$('#consl').innerHTML=[1,2,3,4,5,6].map(i=>`<span style="opacity:${done.has(i)?1:.2};color:${done.has(i)?'#f6d58e':'#fff'}">★</span>`).join('');if(done.size===6)$('#fin').classList.add('show')}
+function win(n,t){if(!done.has(n)){done.add(n);LS.s('a4_done',[...done]);}const g=$('#g'+n);g.textContent='★ Звезда '+n+' загорелась! '+t;g.classList.add('show');refresh();if(done.size===6)setTimeout(()=>$('#fin').scrollIntoView({behavior:'smooth',block:'center'}),700)}
+/* 1 */
+(function(){const O=[['请问，图书馆在哪儿？','Qǐngwèn, túshūguǎn zài nǎr?','Скажите, пожалуйста, где библиотека?',1],['图书馆是哪儿请问？','Túshūguǎn shì nǎr qǐngwèn?','Порядок слов неверный',0],['请问，图书馆在哪儿吗？','Qǐngwèn, túshūguǎn zài nǎr ma?','С 哪儿 знак 吗 не нужен',0]];
+shuffle(O).forEach(o=>{const b=document.createElement('button');b.className='opt zh';b.innerHTML=`${o[0]}<small>${o[1]}</small>`;b.onclick=()=>{if(o[3]){b.classList.add('good');fb('#fb1',1,'Верно! 请问 делает просьбу вежливой.');win(1,'Вежливый вопрос найден.');speak(o[0])}else{b.classList.add('bad');fb('#fb1',0,o[2]+'. Попробуй ещё.')}};$('#o1').appendChild(b)})})();
+/* 2 */
+(function(){const S=[['图书馆在那儿。','Библиотека — там.','zai'],['那儿是图书馆。','Там — библиотека.','shi'],['教学楼在宿舍楼的右边。','Корпус справа от общежития.','zai'],['宿舍楼的北边是教学楼。','К северу от общежития — корпус.','shi'],['我的书在这儿。','Моя книга — здесь.','zai'],['这儿是邮局。','Здесь — почта.','shi'],['邮局在宿舍楼的南边。','Почта к югу от общежития.','zai'],['学校的南边是商店。','К югу от школы — магазин.','shi']];
+let sel=null;
+function build(){$('#pool2').innerHTML='';$$('#b2z .cont,#b2s .cont').forEach(c=>c.innerHTML='');sel=null;shuffle(S).forEach(s=>{const c=document.createElement('div');c.className='chip zh';c.dataset.k=s[2];c.innerHTML=`${s[0]}<div class="tr2 sans" style="font-size:12px">${s[1]}</div>`;c.onclick=e=>{e.stopPropagation();const bn=c.closest('.bin');if(sel&&sel!==c&&bn){sel.classList.remove('sel','good','wrong');bn.querySelector('.cont').appendChild(sel);sel=null;return}if(sel===c){c.classList.remove('sel');sel=null;return}if(sel)sel.classList.remove('sel');sel=c;c.classList.add('sel')};$('#pool2').appendChild(c)});fb('#fb2',1,'')}
+$$('.bin').forEach(b=>b.onclick=()=>{if(!sel)return;sel.classList.remove('sel','good','wrong');b.querySelector('.cont').appendChild(sel);sel=null});
+$('#pool2').onclick=()=>{if(sel){sel.classList.remove('sel');$('#pool2').appendChild(sel);sel=null}};
+$('#c2').onclick=()=>{if($('#pool2').children.length){fb('#fb2',0,'Разложи все карточки.');return}let ok=0;$$('.bin').forEach(b=>b.querySelectorAll('.chip').forEach(c=>{const g=c.dataset.k===b.dataset.bin;c.classList.toggle('good',g);c.classList.toggle('wrong',!g);if(g)ok++}));if(ok===8){fb('#fb2',1,'Всё верно!');win(2,'Ты различаешь 在 и 是.')}else fb('#fb2',0,'Верно '+ok+' из 8. Исправь красные и проверь снова.')};
+$('#r2').onclick=build;build()})();
+/* 3 */
+(function(){const L=[['{}是教学楼。','这儿','Здесь — корпус.'],['{}是图书馆。','那儿','Там — библиотека.'],['图书馆在{}？','哪儿','Где библиотека?'],['邮局在{}。','那儿','Почта — там.']];const W=['这儿','那儿','哪儿'];const ch=L.map(()=>null);
+function r(){$('#l3').innerHTML='';L.forEach((l,i)=>{const d=document.createElement('div');d.className='sent zh';const [a,b]=l[0].split('{}');d.innerHTML=`<span>${a}</span>${W.map(w=>`<button class="wb" data-i="${i}" data-w="${w}">${w}</button>`).join('')}<span>${b}</span><div class="tr sans">${l[2]}</div>`;$('#l3').appendChild(d)});$$('#l3 .wb').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;ch[i]=b.dataset.w;$$(`#l3 .wb[data-i="${i}"]`).forEach(x=>{x.classList.remove('good','bad');x.style.outline=x===b?'2px solid #f6d58e':''})})}
+$('#c3').onclick=()=>{if(ch.includes(null)){fb('#fb3',0,'Выбери слово во всех репликах.');return}let ok=0;L.forEach((l,i)=>{const g=ch[i]===l[1];if(g)ok++;$$(`#l3 .wb[data-i="${i}"]`).forEach(x=>{if(x.dataset.w===ch[i])x.classList.add(g?'good':'bad')})});if(ok===L.length){fb('#fb3',1,'Отлично!');win(3,'这儿, 那儿, 哪儿 на месте.')}else fb('#fb3',0,'Верно '+ok+' из '+L.length+'.')};
+$('#r3').onclick=()=>{ch.fill(null);r();fb('#fb3',1,'')};r()})();
+/* 4 */
+(function(){const T=[[['图书馆','在','宿舍楼','的','东边','。'],'Библиотека к востоку от общежития.'],[['邮局','在','教学楼','的','南边','。'],'Почта к югу от учебного корпуса.'],[['那儿','是','图书馆','。'],'Там — библиотека.']];const st=T.map(()=>[]);
+function r(i){const[t,tr]=T[i];const box=document.getElementById('row4_'+i);const ans=st[i];const pool=shuffle(t.map((w,k)=>[w,k])).filter(p=>!ans.some(a=>a[1]===p[1]));
+box.innerHTML=`<div class="tr2 sans">${tr}</div><div class="ans zh" id="a4_${i}"></div><div id="p4_${i}"></div>`;ans.forEach((p,j)=>{const c=document.createElement('span');c.className='chip zh';c.textContent=p[0];c.onclick=()=>{ans.splice(j,1);r(i)};$('#a4_'+i).appendChild(c)});
+const ps=box._order||(box._order=shuffle(t.map((w,k)=>[w,k])));ps.filter(p=>!ans.some(a=>a[1]===p[1])).forEach(p=>{const c=document.createElement('span');c.className='chip zh';c.textContent=p[0];c.onclick=()=>{ans.push(p);r(i);chk()};$('#p4_'+i).appendChild(c)})}
+const root=$('#b4');T.forEach((_,i)=>{const d=document.createElement('div');d.id='row4_'+i;d.style.margin='12px 0 18px';root.appendChild(d);r(i)});
+function chk(){let all=true;T.forEach((x,i)=>{const a=st[i];if(a.length===x[0].length){const good=a.every((p,j)=>p[0]===x[0][j]);$$('#a4_'+i+' .chip').forEach(c=>c.classList.add(good?'good':'wrong'));if(!good)all=false;if(good)speak(x[0].join(''))}else all=false});if(all){fb('#fb4',1,'Все три фразы собраны!');win(4,'Фразы с 在 и 是 собраны.')}else fb('#fb4',1,'')}})();
+/* 5 map */
+(function(){const B={lib:['图书馆','túshūguǎn',330,200],dorm:['宿舍楼','sùshèlóu',200,200],cls:['教学楼','jiàoxuélóu',200,90],post:['邮局','yóujú',200,310],shop:['商店','shāngdiàn',70,200]};
+const col={lib:'#c98bd6',dorm:'#ff9bb5',cls:'#8fc6ff',post:'#ffd28a',shop:'#9be3c2'};
+let s=`<defs><radialGradient id="g" cx="50%" cy="40%"><stop offset="0" stop-color="#3a2062"/><stop offset="1" stop-color="#150c2b"/></radialGradient></defs><rect width="480" height="400" fill="url(#g)"/>`;
+s+=`<path d="M200 150 V250 M200 90 H330 M70 200 H330 M200 250 V360" stroke="#7d5ea6" stroke-width="10" stroke-linecap="round" fill="none" opacity=".55"/>`;
+for(let i=0;i<22;i++)s+=`<circle cx="${(i*97)%470+5}" cy="${(i*53)%380+8}" r="${i%3?1:1.6}" fill="#fff" opacity=".6"/>`;
+[[30,40],[430,60],[440,330],[40,350],[130,20],[360,370]].forEach(p=>s+=`<circle cx="${p[0]}" cy="${p[1]}" r="16" fill="#3b6b57" opacity=".75"/><circle cx="${p[0]+8}" cy="${p[1]+6}" r="11" fill="#4a8a6e" opacity=".75"/>`);
+Object.keys(B).forEach(k=>{const b=B[k];s+=`<g class="b" data-k="${k}"><rect x="${b[2]-46}" y="${b[3]-30}" width="92" height="60" rx="10" fill="${col[k]}" stroke="#fff" stroke-opacity=".6" stroke-width="2"/><rect x="${b[2]-36}" y="${b[3]-20}" width="14" height="14" rx="3" fill="#fff6c8" opacity=".9"/><rect x="${b[2]-14}" y="${b[3]-20}" width="14" height="14" rx="3" fill="#fff6c8" opacity=".9"/><rect x="${b[2]+8}" y="${b[3]-20}" width="14" height="14" rx="3" fill="#fff6c8" opacity=".9"/><text x="${b[2]}" y="${b[3]+22}" text-anchor="middle" font-size="17" fill="#2b1442" font-family="Noto Serif SC,Songti SC,SimSun,serif" font-weight="700">${b[0]}</text></g>`});
+s+=`<g transform="translate(430,60)"><circle r="30" fill="rgba(0,0,0,.35)" stroke="#f6d58e"/><path d="M0 -26 L6 0 L0 26 L-6 0Z" fill="#ff8fb1"/><text y="-30" text-anchor="middle" font-size="14" fill="#f6d58e" font-family="Noto Serif SC,serif">北</text><text y="42" text-anchor="middle" font-size="14" fill="#fff" font-family="Noto Serif SC,serif">南</text><text x="40" y="5" text-anchor="middle" font-size="14" fill="#fff" font-family="Noto Serif SC,serif">东</text><text x="-40" y="5" text-anchor="middle" font-size="14" fill="#fff" font-family="Noto Serif SC,serif">西</text></g>`;
+$('#map').innerHTML=s;
+const Q=[['宿舍楼的北边是什么？','Sùshèlóu de běibian shì shénme?','Что к северу от общежития?','cls'],['宿舍楼的东边是什么？','Sùshèlóu de dōngbian shì shénme?','Что к востоку от общежития?','lib'],['宿舍楼的南边是什么？','Sùshèlóu de nánbian shì shénme?','Что к югу от общежития?','post'],['宿舍楼的西边是什么？','Sùshèlóu de xībian shì shénme?','Что к западу от общежития?','shop'],['邮局在哪儿？ 在宿舍楼的南边。','Yóujú zài nǎr? Zài sùshèlóu de nánbian.','Нажми на здание, о котором речь: почта.','post'],['图书馆在教学楼的南边吗？ 不，在宿舍楼的东边。 Нажми на библиотеку.','','','lib']];
+const QS=shuffle(Q.slice(0,5));let qi=0,got=0;
+function show(){const q=QS[qi];$('#q5').textContent=q[0];$('#p5').textContent=q[1];$('#t5').textContent=q[2]}
+show();
+$$('#map .b').forEach(g=>g.onclick=()=>{if(qi>=QS.length)return;const q=QS[qi];$$('#map .b').forEach(x=>x.classList.remove('good','bad'));if(g.dataset.k===q[3]){g.classList.add('good');got++;qi++;if(qi>=QS.length){fb('#fb5',1,'Все стороны света найдены!');win(5,'东南西北 у тебя в кармане.')}else{fb('#fb5',1,'Верно! Дальше.');show()}}else{g.classList.add('bad');fb('#fb5',0,'Не то здание. Подумай о сторонах света.')}})})();
+/* 6 */
+(function(){const D=[['玛莎','同学，这儿是图书馆吗？','Tóngxué, zhèr shì túshūguǎn ma?','Скажите, здесь библиотека?'],['学生','不是，这是教学楼，图书馆在那儿，宿舍楼的北边。','Bú shì, zhè shì jiàoxuélóu, túshūguǎn zài nàr, sùshèlóu de běibian.','Нет, это корпус. Библиотека там, к северу от общежития.'],['玛莎','是左边的楼吗？','Shì zuǒbian de lóu ma?','Это здание слева?'],['学生','不，是右边的楼。','Bù, shì yòubian de lóu.','Нет, справа.'],['玛莎','谢谢。','Xièxie.','Спасибо.'],['学生','不用谢。','Búyòng xiè.','Не за что.']];
+let me='玛莎',hid=false;const tk=new Set();
+function r(){$('#dl6').innerHTML=D.map((d,i)=>{const m=d[0]===me;return `<div class="turn ${m?'mine':''} ${m&&hid?'hide':''}"><div class="av ${d[0]==='玛莎'?'m':''} zh">${d[0]}</div><div class="l"><div class="t zh">${d[1]}</div><div class="p">${d[2]}</div><div class="r">${d[3]}</div></div><button class="sp" data-s="${i}" aria-label="Произнести">🔊</button>${m?`<button class="tick ${tk.has(i)?'on':''}" data-i="${i}" aria-label="Прочитано">${tk.has(i)?'✓':''}</button>`:''}</div>`}).join('');
+$$('#dl6 .sp').forEach(b=>b.onclick=()=>speak(D[+b.dataset.s][1]));
+$$('#dl6 .tick').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;tk.has(i)?tk.delete(i):tk.add(i);r();ck()});
+$('#rm').className='btn'+(me==='玛莎'?' main':'');$('#rs').className='btn'+(me==='学生'?' main':'')}
+function ck(){const need=D.map((d,i)=>d[0]===me?i:-1).filter(i=>i>=0);if(need.every(i=>tk.has(i))){fb('#fb6',1,'Роль прочитана! Поменяйтесь ролями.');win(6,'Диалог сыгран.')}else fb('#fb6',1,'')}
+$('#rm').onclick=()=>{me='玛莎';tk.clear();r()};$('#rs').onclick=()=>{me='学生';tk.clear();r()};
+$('#hd').onclick=()=>{hid=!hid;$('#hd').textContent=hid?'Показать мои реплики':'Скрыть мои реплики';r()};r()})();
+$('#voc').innerHTML=[['在 zài','находиться в'],['是 shì','быть, являться'],['这儿 zhèr','здесь'],['那儿 nàr','там'],['哪儿 nǎr','где'],['东南西北','восток, юг, запад, север'],['左边 / 右边','слева / справа'],['的东边','к востоку от'],['请问','скажите, пожалуйста'],['不用谢','не за что']].map(v=>`<div><span class="zh">${v[0]}</span><span class="ru">${v[1]}</span></div>`).join('');
+refresh();
+</script></body></html>
